@@ -65,4 +65,15 @@ For more information on using the Angular CLI, including detailed command refere
 ```
 ng g c pages/home
 ng g c pages/dashboard
+ng g c pages/edit-file
+ng g c pages/workflows
+ng g c pages/edit-workflow
+
+ng g c components/header-component
+ng g c components/file-explorer-component
+ng g c components/file-explorer-component
+ng g c components/settings
+
+ng g s services/app.service
+ng g s services/api.service
 ```
