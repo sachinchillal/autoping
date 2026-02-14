@@ -1,0 +1,81 @@
+<div class="p-4">
+  <div class="rounded-lg border border-slate-200 shadow-sm">
+    <div class="flex flex-wrap items-center gap-3 border-b border-slate-200 px-4 py-3">
+      <h2 class="text-base font-semibold">Workflows</h2>
+      <span class="ms-auto"></span>
+      <label class="flex cursor-pointer items-center gap-2">
+        <button type="button" role="switch" [attr.aria-checked]="appService.isRunningWorkflows()"
+          [class.bg-emerald-600]="appService.isRunningWorkflows()"
+          [class.bg-slate-300]="!appService.isRunningWorkflows()"
+          class="relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+          (click)="toggleWorkflowsWithConfirmation()">
+          <span
+            class="pointer-events-none inline-block size-5 translate-y-0.5 rounded-full bg-white shadow transition-transform"
+            [class.translate-x-5]="appService.isRunningWorkflows()"
+            [class.translate-x-0.5]="!appService.isRunningWorkflows()"></span>
+        </button>
+        <span class="text-sm">All workflows</span>
+      </label>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-3 w-3 shrink-0 rounded-full" [class.bg-emerald-500]="appService.isRunningWorkflows()"
+          [class.bg-slate-400]="!appService.isRunningWorkflows()" aria-hidden="true"></span>
+        <span class="text-sm font-medium">
+          {{ appService.isRunningWorkflows() ? 'Active' : 'Stopped' }}
+        </span>
+      </div>
+      <button type="button"
+        class="flex h-8 w-8 items-center justify-center rounded transition hover:bg-slate-200 hover:text-slate-900"
+        (click)="refreshWorkflowsStatus()" title="Refresh status">
+        <ng-icon name="matRefresh" class="size-5"></ng-icon>
+      </button>
+    </div>
+    <div class="p-4">
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <input type="text" [(ngModel)]="newWorkflowName" placeholder="New workflow name"
+          class="rounded border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          (keyup.enter)="createWorkflow()" />
+        <button type="button"
+          class="flex items-center gap-1.5 rounded bg-slate-700 px-3 py-1.5 text-sm text-white transition hover:bg-slate-800"
+          (click)="createWorkflow()" [disabled]="!newWorkflowName.trim()">
+          <ng-icon name="matAdd" class="size-4"></ng-icon>
+          Add workflow
+        </button>
+        <span class="ms-auto"></span>
+        <button type="button"
+          class="flex h-8 w-8 items-center justify-center rounded transition hover:bg-slate-200 hover:text-slate-900"
+          (click)="refreshWorkflows()" title="Refresh workflows list">
+          <ng-icon name="matRefresh" class="size-5"></ng-icon>
+        </button>
+      </div>
+      <ul class="space-y-2">
+        @for (w of appService.workflows(); track w.id) {
+        <li class="flex flex-wrap items-center gap-3 rounded border border-slate-600 px-3 py-2">
+          <button type="button" role="switch" [attr.aria-checked]="w.isActive" [class.bg-emerald-600]="w.isActive"
+            [class.bg-slate-300]="!w.isActive"
+            class="relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
+            (click)="toggleWorkflowEnabled(w)" title="{{ w.isActive ? 'Disable' : 'Enable' }}">
+            <span
+              class="pointer-events-none inline-block size-4 translate-y-0.5 rounded-full bg-white shadow transition-transform"
+              [class.translate-x-5]="w.isActive" [class.translate-x-0.5]="!w.isActive"></span>
+          </button>
+          <a class="min-w-0 flex-1 text-sm font-medium" routerLink="/edit-workflow/{{ w.id }}">{{ w.name }}</a>
+          <div class="flex items-center gap-1">
+            <button type="button"
+              class="flex h-8 w-8 items-center justify-center rounded transition hover:bg-slate-200 hover:text-slate-900"
+              (click)="renameWorkflow(w)" title="Rename">
+              <ng-icon name="matEdit" class="size-4"></ng-icon>
+            </button>
+            <button type="button"
+              class="flex h-8 w-8 items-center justify-center rounded transition hover:bg-red-100 hover:text-red-700"
+              (click)="deleteWorkflow(w)" title="Delete">
+              <ng-icon name="matDelete" class="size-4"></ng-icon>
+            </button>
+          </div>
+        </li>
+        } @empty {
+        <li class="py-4 text-center text-sm text-slate-500">No workflows yet. Add one above.</li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

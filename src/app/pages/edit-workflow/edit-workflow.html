@@ -1,0 +1,98 @@
+<div class="edit-workflow max-w-2xl">
+  @if (loading()) {
+  <p class="py-8 text-center text-slate-600 dark:text-slate-400">Loading workflow…</p>
+  } @else if (loadError()) {
+  <div
+    class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200">
+    <p>{{ loadError() }}</p>
+    <a routerLink="/workflows"
+      class="mt-2 inline-flex items-center gap-1 text-sm font-medium underline dark:text-red-300 dark:hover:text-red-100">
+      <ng-icon name="matArrowBack" class="size-4"></ng-icon>
+      Back to workflows
+    </a>
+  </div>
+  } @else {
+  <div class="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <div class="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+      <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Edit workflow</h1>
+    </div>
+    <div class="space-y-4 p-4">
+      <!-- Workflow name -->
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Workflow name</label>
+        <p class="mb-1 text-sm text-slate-500 dark:text-slate-400">{{ workflow()?.name }}</p>
+        <input type="text" [ngModel]="editName()" (ngModelChange)="editName.set($event)" placeholder="Workflow name"
+          class="w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 dark:focus:border-slate-500 dark:focus:ring-slate-500" />
+      </div>
+
+      <!-- Running status -->
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Status</label>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex h-3 w-3 shrink-0 rounded-full" [class.bg-emerald-500]="workflow()?.isActive"
+            [class.bg-slate-400]="!workflow()?.isActive" aria-hidden="true"></span>
+          <ng-icon [name]="workflow()?.isActive ? 'matPlayArrow' : 'matStop'" class="size-5"
+            [class.text-emerald-600]="workflow()?.isActive" [class.text-slate-500]="!workflow()?.isActive"
+            [class.dark:text-emerald-400]="workflow()?.isActive"
+            [class.dark:text-slate-400]="!workflow()?.isActive"></ng-icon>
+          <span class="text-sm font-medium text-slate-900 dark:text-slate-200">
+            {{ workflow()?.isActive ? 'Active' : 'Disabled' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Folder -->
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Folder</label>
+        <p class="mb-1 text-sm text-slate-500 dark:text-slate-400">Current: {{ getFolderName(workflow()?.folderID ?? 0)
+          }}</p>
+        <select [ngModel]="editFolderId()" (ngModelChange)="editFolderId.set($event)"
+          class="w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500">
+          @for (folder of folders(); track folder.id) {
+          <option [value]="folder.id">{{ folder.name }}</option>
+          } @empty {
+          <option [value]="0">— No folders —</option>
+          }
+        </select>
+      </div>
+
+      <!-- Chat -->
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Chat</label>
+        <p class="mb-1 text-sm text-slate-500 dark:text-slate-400">Current: {{ getChatName(workflow()?.chatId ?? '') }}
+        </p>
+        <select [ngModel]="editChatId()" (ngModelChange)="editChatId.set($event)"
+          class="w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500">
+          @for (chat of chats; track chat.id) {
+          <option [value]="chat.id">{{ chat.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Cron expression -->
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Cron expression</label>
+        <p class="mb-1 text-sm text-slate-500 dark:text-slate-400">Current: {{ workflow()?.cronExpression ?? '—' }}</p>
+        <app-cron-selector [value]="editCronExpression()" (valueChange)="editCronExpression.set($event)" />
+      </div>
+
+      @if (saveError()) {
+      <p class="text-sm text-red-600 dark:text-red-400">{{ saveError() }}</p>
+      }
+
+      <div class="flex flex-wrap items-center gap-3 pt-2">
+        <button type="button" (click)="save()" [disabled]="saving()"
+          class="inline-flex items-center gap-2 rounded bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60 dark:bg-slate-600 dark:hover:bg-slate-500">
+          <ng-icon name="matSave" class="size-4"></ng-icon>
+          {{ saving() ? 'Saving…' : 'Save changes' }}
+        </button>
+        <a routerLink="/workflows"
+          class="inline-flex items-center gap-1 text-sm font-medium text-slate-600 underline hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
+          <ng-icon name="matArrowBack" class="size-4"></ng-icon>
+          Back to workflows
+        </a>
+      </div>
+    </div>
+  </div>
+  }
+</div>

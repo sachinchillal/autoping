@@ -1,0 +1,27 @@
+<div class="edit-file">
+  @if (loading()) {
+  <p class="loading">Loading file…</p>
+  } @else if (loadError()) {
+  <p class="error">{{ loadError() }}</p>
+  <a routerLink="/">Back</a>
+  } @else {
+  <div class="breadcrumb flex items-center gap-1">
+    @for (crumb of breadcrumb(); track $index) {
+    <span class="breadcrumb-item">{{ crumb }}</span>
+    <span class="breadcrumb-separator">/</span>
+    }
+    <b class="breadcrumb-item">{{ fileName() }}</b>
+  </div>
+  <textarea class="editor" [ngModel]="content()" (ngModelChange)="content.set($event)" placeholder="File content…"
+    rows="20"></textarea>
+  @if (saveError()) {
+  <p class="error">{{ saveError() }}</p>
+  }
+  <div class="actions">
+    <button type="button" class="save-btn" (click)="save()" [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+    <a routerLink="/" class="back-link">Back</a>
+  </div>
+  }
+</div>
