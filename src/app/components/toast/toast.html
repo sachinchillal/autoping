@@ -1,0 +1,29 @@
+@if (toastService.toasts().length > 0) {
+  <div class="toast-container" role="region" aria-label="Notifications">
+    @for (toast of toastService.toasts(); track toast.id) {
+      <div
+        class="toast toast--{{ toast.type }}"
+        [attr.role]="'alert'"
+        [attr.aria-live]="toast.type === 'error' ? 'assertive' : 'polite'"
+      >
+        <ng-icon [name]="getIcon(toast.type)" class="toast__icon" aria-hidden="true"></ng-icon>
+        <div class="toast__body">
+          @if (toast.title) {
+            <div class="toast__title">{{ toast.title }}</div>
+          }
+          <div class="toast__message">{{ toast.message }}</div>
+        </div>
+        @if (toast.dismissible) {
+          <button
+            type="button"
+            class="toast__close"
+            (click)="dismiss(toast.id)"
+            aria-label="Dismiss notification"
+          >
+            <ng-icon name="matClose" class="toast__close-icon" aria-hidden="true"></ng-icon>
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

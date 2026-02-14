@@ -1,0 +1,69 @@
+<header
+  class="flex items-center gap-6 py-3 px-5 sticky top-0 z-[100] dark:bg-stone-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
+  <a class="inline-flex items-center gap-2 no-underline text-sky-300 font-semibold text-lg shrink-0 hover:text-sky-200"
+    routerLink="/" aria-label="AutoPing home">
+    <img [src]="logoPath" alt="" class="block h-8 object-contain" />
+  </a>
+
+  <nav class="flex items-center gap-1 flex-1 min-w-0" aria-label="Main navigation">
+    @for (item of navItems; track item.path) {
+    <a class="px-3 py-2 text-neutral-400 no-underline text-[0.9375rem] rounded-md transition-colors duration-150 hover:text-neutral-200 hover:bg-white/5"
+      [routerLink]="item.path"
+      routerLinkActive="!text-sky-300 !bg-sky-400/10"
+      [routerLinkActiveOptions]="{ exact: item.path === '' }">
+      {{ item.label }}
+    </a>
+    }
+  </nav>
+
+  <form
+    class="flex items-center rounded-lg overflow-hidden w-full max-w-[280px] shrink-0 dark:bg-stone-800 dark:text-white border border-gray-200 dark:border-gray-700"
+    (submit)="onSearchSubmit(); $event.preventDefault()" role="search">
+    <label for="header-search" class="sr-only">Search</label>
+    <input id="header-search" type="search"
+      class="flex-1 min-w-0 py-2 px-3 text-sm bg-transparent border-0 outline-none placeholder:opacity-50 placeholder:text-neutral-400"
+      placeholder="Search…" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+      autocomplete="off" aria-label="Search" />
+    <button type="submit"
+      class="py-2 px-3 text-neutral-500 bg-transparent border-0 cursor-pointer text-base leading-none hover:text-neutral-400"
+      aria-label="Submit search">
+      <span aria-hidden="true">⌕</span>
+    </button>
+  </form>
+
+  <button type="button"
+    class="inline-flex items-center justify-center w-10 h-10 p-0 bg-transparent border-0 rounded-lg cursor-pointer transition-colors duration-150 shrink-0"
+    (click)="themeService.setTheme('system')" aria-label="Theme system">S</button>
+  <button type="button"
+    class="inline-flex items-center justify-center w-10 h-10 p-0 bg-transparent border-0 rounded-lg cursor-pointer transition-colors duration-150 shrink-0"
+    (click)="themeService.setTheme('light')" aria-label="Theme light">L</button>
+  <button type="button"
+    class="inline-flex items-center justify-center w-10 h-10 p-0 bg-transparent border-0 rounded-lg cursor-pointer transition-colors duration-150 shrink-0"
+    (click)="themeService.setTheme('dark')" aria-label="Theme dark">D</button>
+
+  <button type="button"
+    class="inline-flex items-center justify-center w-10 h-10 p-0 bg-transparent border-0 rounded-lg cursor-pointer transition-colors duration-150 shrink-0"
+    (click)="openSettings()" aria-label="Open settings">
+    <ng-icon name="matSettings" size="22" aria-hidden="true"></ng-icon>
+  </button>
+
+  @if (settingsOpen()) {
+  <div class="settings-overlay fixed inset-0 bg-black/50 z-[1000]"
+    (click)="closeSettings()" role="button" tabindex="-1" aria-label="Close settings overlay"></div>
+  <aside
+    class="settings-sidebar fixed top-0 right-0 bottom-0 w-[min(360px,100vw)] border-l border-stone-800 shadow-[-4px_0_24px_rgba(0,0,0,0.4)] z-[1001] flex flex-col bg-white dark:bg-stone-900"
+    role="dialog" aria-modal="true" aria-label="Settings">
+    <div class="flex items-center justify-between py-4 px-5 border-b border-stone-800 shrink-0">
+      <h2 class="text-lg font-medium">Settings</h2>
+      <button type="button"
+        class="inline-flex items-center justify-center w-9 h-9 p-0 text-neutral-400 bg-transparent border-0 rounded-md cursor-pointer text-2xl leading-none transition-colors duration-150 hover:text-neutral-200 hover:bg-white/5"
+        (click)="closeSettings()" aria-label="Close settings">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="flex-1 overflow-auto p-5">
+      <app-settings></app-settings>
+    </div>
+  </aside>
+  }
+</header>

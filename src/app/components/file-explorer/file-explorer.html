@@ -1,0 +1,188 @@
+<div class="rounded-lg border border-slate-200 shadow-sm">
+  <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 px-3 py-2">
+    <span class="text-sm font-medium">Folders</span>
+    <button type="button"
+      class="rounded px-2 py-1 text-xs font-medium transition hover:bg-slate-200 hover:text-slate-900"
+      (click)="startAddingFolder()">
+      + New folder
+    </button>
+    <button type="button"
+      class="rounded px-2 py-1 text-xs font-medium transition hover:bg-slate-200 hover:text-slate-900"
+      (click)="appService.handleExpandAll()">
+      Expand all
+    </button>
+    <button type="button"
+      class="rounded px-2 py-1 text-xs font-medium transition hover:bg-slate-200 hover:text-slate-900"
+      (click)="appService.handleCollapseAll()">
+      Collapse all
+    </button>
+    <i class="ms-auto"></i>
+    <button type="button"
+      class="rounded px-2 py-1 text-xs font-medium transition hover:bg-slate-200 hover:text-slate-900"
+      (click)="refresh()">
+      <ng-icon name="matRefresh"></ng-icon>
+    </button>
+  </div>
+  <div class="max-h-96 overflow-auto p-2">
+    <ng-template #folderTmpl let-folder let-depth="depth">
+      <div class="select-none">
+        <div
+          class="group flex items-center gap-1 rounded py-1 pr-1 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+          [style.paddingLeft.rem]="0.5 + depth * 1.25">
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded hover:bg-slate-200 hover:text-slate-700"
+            (click)="appService.handleToggleExpand(folder)">
+            @if (folder.children?.length || folder.files?.length) {
+            @if (folder.isExpanded) {
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            } @else {
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            }
+            } @else {
+            <span class="inline-block w-4"></span>
+            }
+          </button>
+          @if (isRenamingFolder(folder.id)) {
+          <span class="flex h-6 w-6 shrink-0 items-center justify-center text-amber-600">
+            <ng-icon name="matFolderOpen"></ng-icon>
+          </span>
+          <input type="text"
+            class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-0.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            [value]="renamingName()" (input)="renamingName.set($any($event.target).value)"
+            (keydown.enter)="confirmRename()" (keydown.escape)="cancelRenaming()" (blur)="confirmRename()" />
+          } @else {
+          <span class="h-6 w-6 flex shrink-0 items-center justify-center text-amber-600">
+            <ng-icon name="matFolder"></ng-icon>
+          </span>
+          <span class="min-w-0 flex-1 truncate text-sm">{{ folder.name }}</span>
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition hover:bg-slate-200 hover:text-slate-600 group-hover:opacity-100"
+            (click)="startAddingFolder(folder.id); $event.stopPropagation()" title="New subfolder">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition hover:bg-slate-200 hover:text-red-600 group-hover:opacity-100"
+            (click)="startAddingFile(folder.id); $event.stopPropagation()" title="New file">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </button>
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition hover:bg-slate-200 hover:text-slate-600 group-hover:opacity-100"
+            (click)="startRenamingFolder(folder.name, folder.id); $event.stopPropagation()" title="Rename folder">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </button>
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition hover:bg-red-100 hover:text-red-600 group-hover:opacity-100"
+            (click)="deleteFolder(folder.id); $event.stopPropagation()" title="Delete folder">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+          }
+        </div>
+        @if (addingToParentFolderId() === folder.id) {
+        <div class="flex items-center gap-1 rounded py-1" [style.paddingLeft.rem]="0.5 + (depth + 1) * 1.25">
+          <span class="h-6 w-6 flex shrink-0 items-center justify-center text-amber-600">
+            <ng-icon name="matCreateNewFolder"></ng-icon>
+          </span>
+          <input type="text"
+            class="flex-1 rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            placeholder="Folder name" [value]="newFolderName()" (input)="newFolderName.set($any($event.target).value)"
+            (keydown.enter)="confirmAddFolder( newFolderName(), folder.id)" (keydown.escape)="cancelAddingFolder()"
+            (blur)="confirmAddFolder( newFolderName(), folder.id)" />
+        </div>
+        }
+        @if (addingFileToFolderId() === folder.id) {
+        <div class="flex items-center gap-1 rounded py-1" [style.paddingLeft.rem]="0.5 + (depth + 1) * 1.25">
+          <span class="flex h-6 w-6 shrink-0 items-center justify-center text-slate-500">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </span>
+          <input type="text"
+            class="flex-1 rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            placeholder="File name" [value]="newFileName()" (input)="newFileName.set($any($event.target).value)"
+            (keydown.enter)="confirmAddFile(folder.id, newFileName())" (keydown.escape)="cancelAddingFile()"
+            (blur)="confirmAddFile(folder.id, newFileName())" />
+        </div>
+        }
+        @if (folder.isExpanded) {
+        @if (folder.children?.length) {
+        @for (child of folder.children; track $index) {
+        <ng-container *ngTemplateOutlet="folderTmpl; context: { $implicit: child, depth: depth + 1 }" />
+        }
+        }
+        @for (file of folder.files ?? []; track file.id) {
+        <div
+          class="group flex items-center gap-1 rounded py-1 pr-1 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+          [style.paddingLeft.rem]="0.5 + (depth + 1) * 1.25">
+          <span class="inline-block w-6 shrink-0"></span>
+          @if (isRenamingFile(folder.id, file.id)) {
+          <span class="flex h-6 w-6 shrink-0 items-center justify-center text-slate-500">
+            <ng-icon name="matFileOpen"></ng-icon>
+          </span>
+          <input type="text"
+            class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-0.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            [value]="renamingName()" (input)="renamingName.set($any($event.target).value)"
+            (keydown.enter)="confirmRename()" (keydown.escape)="cancelRenaming()" (blur)="confirmRename()" />
+          } @else {
+          <span class="flex h-6 w-6 shrink-0 items-center justify-center text-slate-500">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </span>
+          <a [routerLink]="['/edit-file', file.id]"
+            class="min-w-0 flex-1 cursor-pointer truncate text-sm no-underline text-inherit">{{ file.name }}</a>
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition hover:bg-slate-200 hover:text-slate-600 group-hover:opacity-100"
+            (click)="startRenamingFile(file.id, file.name); $event.stopPropagation()" title="Rename file">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </button>
+          <button type="button"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 opacity-0 transition hover:bg-red-100 hover:text-red-600 group-hover:opacity-100"
+            (click)="deleteFile(file.id); $event.stopPropagation()" title="Delete file">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+          }
+        </div>
+        }
+        }
+      </div>
+    </ng-template>
+    @if (addingToParentFolderId() === 0) {
+    <div class="flex items-center gap-1 rounded py-1" [style.paddingLeft.rem]="0.5">
+      <span class="h-6 w-6 flex shrink-0 items-center justify-center text-amber-600">
+        <ng-icon name="matCreateNewFolder"></ng-icon>
+      </span>
+      <input type="text"
+        class="flex-1 rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        placeholder="Folder name" [value]="newFolderName()" (input)="newFolderName.set($any($event.target).value)"
+        (keydown.enter)="confirmAddFolder( newFolderName())" (keydown.escape)="cancelAddingFolder()"
+        (blur)="confirmAddFolder( newFolderName())" />
+    </div>
+    }
+    @for (treeNode of appService.tree(); track treeNode.id) {
+    <ng-container *ngTemplateOutlet="folderTmpl; context: { $implicit: treeNode, depth: 0 }" />
+    }
+  </div>
+</div>

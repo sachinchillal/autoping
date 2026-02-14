@@ -1,0 +1,28 @@
+// Animations for overlay and sidebar (no Tailwind equivalent for custom keyframes)
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sidebar-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.settings-overlay {
+  animation: overlay-in 0.5s ease-out;
+}
+
+.settings-sidebar {
+  animation: sidebar-in 0.5s ease-out;
+}

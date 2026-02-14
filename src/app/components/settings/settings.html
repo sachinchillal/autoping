@@ -1,0 +1,23 @@
+<section class="mb-4" aria-labelledby="theme-heading">
+  <h2 id="theme-heading" class="text-sm font-semibold mb-2">Theme</h2>
+  <div class="flex flex-col gap-1" role="radiogroup" aria-label="Theme preference">
+    <label
+      class="flex items-center gap-2 cursor-pointer py-1.5 rounded transition-colors duration-150 hover:bg-black/5 dark:hover:bg-white/5">
+      <input type="radio" name="theme" value="system" class="m-0 accent-blue-600"
+        [checked]="themeService.theme() === 'system'" (change)="themeService.setTheme('system')" />
+      <span class="text-sm select-none">System</span>
+    </label>
+    <label
+      class="flex items-center gap-2 cursor-pointer py-1.5 rounded transition-colors duration-150 hover:bg-black/5 dark:hover:bg-white/5">
+      <input type="radio" name="theme" value="light" class="m-0 accent-blue-600"
+        [checked]="themeService.theme() === 'light'" (change)="themeService.setTheme('light')" />
+      <span class="text-sm select-none">Light</span>
+    </label>
+    <label
+      class="flex items-center gap-2 cursor-pointer py-1.5 rounded transition-colors duration-150 hover:bg-black/5 dark:hover:bg-white/5">
+      <input type="radio" name="theme" value="dark" class="m-0 accent-blue-600"
+        [checked]="themeService.theme() === 'dark'" (change)="themeService.setTheme('dark')" />
+      <span class="text-sm select-none">Dark</span>
+    </label>
+  </div>
+</section>

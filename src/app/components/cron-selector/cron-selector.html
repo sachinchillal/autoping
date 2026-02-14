@@ -1,0 +1,150 @@
+<div class="cron-selector flex flex-col gap-1">
+  <div class="flex gap-2">
+    <input
+      type="text"
+      [ngModel]="value()"
+      (ngModelChange)="valueChange.emit($event)"
+      placeholder="e.g. 0 0 * * * *"
+      class="min-w-0 flex-1 rounded border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 dark:focus:border-slate-500 dark:focus:ring-slate-500"
+    />
+    <button
+      type="button"
+      (click)="openModal()"
+      class="inline-flex shrink-0 items-center justify-center rounded border border-slate-300 bg-slate-50 px-3 py-2 text-slate-700 transition hover:bg-slate-100 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus:border-slate-500 dark:focus:ring-slate-500"
+      title="Open cron expression selector"
+      aria-label="Open cron expression selector"
+    >
+      <ng-icon name="matSchedule" class="size-5"></ng-icon>
+    </button>
+  </div>
+
+  @if (open()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cron-modal-title"
+    (keydown)="onKeydown($event)"
+  >
+    <div
+      class="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/70"
+      (click)="onBackdropClick()"
+    ></div>
+    <div
+      class="relative z-10 w-full max-w-md rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+    >
+      <div class="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+        <h2 id="cron-modal-title" class="text-lg font-semibold text-slate-900 dark:text-white">
+          Select schedule
+        </h2>
+        <p class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+          Choose a preset or build a custom 6-part cron expression (second minute hour day month weekday).
+        </p>
+      </div>
+      <div class="max-h-[60vh] overflow-y-auto p-4">
+        <section class="mb-4">
+          <h3 class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Presets</h3>
+          <ul class="space-y-1">
+            @for (preset of presets; track preset.expression) {
+            <li>
+              <button
+                type="button"
+                (click)="selectPreset(preset)"
+                class="w-full rounded border border-slate-200 px-3 py-2 text-left text-sm text-slate-800 transition hover:bg-slate-50 hover:border-slate-300 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:border-slate-500"
+              >
+                <span class="font-medium">{{ preset.label }}</span>
+                <span class="ml-2 text-slate-500 dark:text-slate-400">{{ preset.expression }}</span>
+              </button>
+            </li>
+            }
+          </ul>
+        </section>
+        <section>
+          <h3 class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Custom</h3>
+          <div class="grid grid-cols-6 gap-2 text-sm">
+            <div>
+              <label class="mb-0.5 block text-xs text-slate-500 dark:text-slate-400">Sec</label>
+              <input
+                type="text"
+                [ngModel]="customSecond()"
+                (ngModelChange)="customSecond.set($event)"
+                placeholder="0-59"
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label class="mb-0.5 block text-xs text-slate-500 dark:text-slate-400">Min</label>
+              <input
+                type="text"
+                [ngModel]="customMinute()"
+                (ngModelChange)="customMinute.set($event)"
+                placeholder="0-59"
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label class="mb-0.5 block text-xs text-slate-500 dark:text-slate-400">Hour</label>
+              <input
+                type="text"
+                [ngModel]="customHour()"
+                (ngModelChange)="customHour.set($event)"
+                placeholder="0-23"
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label class="mb-0.5 block text-xs text-slate-500 dark:text-slate-400">Day</label>
+              <input
+                type="text"
+                [ngModel]="customDayOfMonth()"
+                (ngModelChange)="customDayOfMonth.set($event)"
+                placeholder="1-31"
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label class="mb-0.5 block text-xs text-slate-500 dark:text-slate-400">Month</label>
+              <input
+                type="text"
+                [ngModel]="customMonth()"
+                (ngModelChange)="customMonth.set($event)"
+                placeholder="1-12"
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label class="mb-0.5 block text-xs text-slate-500 dark:text-slate-400">Weekday</label>
+              <input
+                type="text"
+                [ngModel]="customDayOfWeek()"
+                (ngModelChange)="customDayOfWeek.set($event)"
+                placeholder="0-7"
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-500"
+              />
+            </div>
+          </div>
+          <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+            Result: <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">{{ customExpression() }}</code>
+          </p>
+        </section>
+      </div>
+      <div class="flex justify-end gap-2 border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="applyCustom()"
+          class="rounded bg-slate-700 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500"
+        >
+          Use custom
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>
